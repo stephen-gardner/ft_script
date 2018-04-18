@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/16 16:48:31 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/17 18:56:54 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/18 00:16:50 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,11 @@
 # define FT_SCRIPT_H
 # include <sys/time.h>
 # include "libft.h"
+
+# define OPTIONS		"adFpqr"
+# define DEFAULT_FILE	"typescript"
+# define DEFAULT_SHELL	"/bin/sh"
+# define SHELL_KEY		"SHELL"
 
 /*
 ** -a	O_APPEND
@@ -46,12 +51,21 @@ typedef struct	s_header
 
 typedef struct	s_session
 {
-	char	**cmd;
-	char	*file;
-	int		append: 1;
-	int		flush: 1;
-	int		instant: 1;
-	int		quiet: 1;
-	int		record: 1;
+	char *const	*cmd;
+	char		*shell;
+	char		*file;
+	int			append: 1;
+	int			flush: 1;
+	int			instant: 1;
+	int			quiet: 1;
+	int			record: 1;
 }				t_session;
+
+/*
+** main.c
+*/
+
+void			script_err(const char *err);
+
+extern const char	*g_pname;
 #endif
