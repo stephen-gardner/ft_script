@@ -6,16 +6,24 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/16 16:48:31 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/18 00:16:50 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/19 05:12:52 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FT_SCRIPT_H
 # define FT_SCRIPT_H
+# include <errno.h>
+# include <stdio.h>
 # include <sys/time.h>
 # include "libft.h"
 
+typedef struct termios	t_termios;
+typedef struct winsize	t_winsize;
+
+# define PNAME			"ft_script"
 # define OPTIONS		"adFpqr"
+# define ERRMSG			sys_errlist[errno]
+
 # define DEFAULT_FILE	"typescript"
 # define DEFAULT_SHELL	"/bin/sh"
 # define SHELL_KEY		"SHELL"
@@ -51,9 +59,11 @@ typedef struct	s_header
 
 typedef struct	s_session
 {
+	char *const *env;
 	char *const	*cmd;
 	char		*shell;
 	char		*file;
+	int			fd;
 	int			append: 1;
 	int			flush: 1;
 	int			instant: 1;
@@ -65,7 +75,20 @@ typedef struct	s_session
 ** main.c
 */
 
-void			script_err(const char *err);
+int				script_err(const char *pre, const char *err, const char *arg);
 
-extern const char	*g_pname;
+/*
+** pty.c
+*/
+
+int				ft_forkpty(int *amaster, t_termios *termp, t_winsize *winp);
+int				ft_login_tty(int fd);
+int				ft_openpty(int *amster, int *aslave, t_termios *termp,
+					t_winsize *winp);
+
+/*
+** record.c
+*/
+
+void			start_session(t_session *s);
 #endif
