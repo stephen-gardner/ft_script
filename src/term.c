@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/19 16:55:22 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/20 02:02:19 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/20 15:13:43 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,29 +15,25 @@
 #include <unistd.h>
 #include "ft_script.h"
 
-void		toggle_echo(int fd)
+int			toggle_raw(t_bool mode)
 {
-	t_termios	term;
+	static t_termios	orig;
+	t_termios			raw;
 
-	if (ioctl(fd, TIOCGETA, &term) < 0)
-		return ;
-	term.c_lflag &= ~(ECHO | ICANON | ISIG);
-	ioctl(fd, TIOCSETAF, &term);
-}
-
-t_termios	*get_raw_term(void)
-{
-	static t_termios	term;
-
-	if (ioctl(STDIN_FILENO, TIOCGETA, &term) < 0)
-		return (NULL);
-	term.c_cflag &= ~(CSIZE | PARENB);
-	term.c_cflag |= CS8;
-	term.c_iflag &= ~(
-		IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
-	term.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
-	term.c_oflag &= ~OPOST;
-	return (&term);
+	if (mode)
+	{
+		if (ioctl(STDIN_FILENO, TIOCGETA, &orig) < 0)
+			return (-1);
+		raw = orig;
+		raw.c_cflag &= ~(CSIZE | PARENB);
+		raw.c_cflag |= CS8;
+		raw.c_iflag &= ~(
+			IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
+		raw.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+		raw.c_oflag &= ~OPOST;
+		return (ioctl(STDIN_FILENO, TIOCSETAF, &raw));
+	}
+	return (ioctl(STDIN_FILENO, TIOCSETAF, &orig));
 }
 
 t_winsize	*get_winsize(void)

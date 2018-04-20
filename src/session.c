@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/18 00:20:41 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/20 02:06:39 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/20 15:14:11 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include <sys/ioctl.h>
@@ -36,14 +36,13 @@ void			start_session(t_session *s)
 	char	buf[4096];
 	int		master;
 	int		bytes;
+	fd_set	fds;
 
 	av[0] = s->shell;
 	av[1] = 0;
-	if (ft_forkpty(&master, get_raw_term(), get_winsize()))
+	if (ft_forkpty(&master, NULL, get_winsize()))
 	{
-		fd_set	fds;
-
-		toggle_echo(STDIN_FILENO);
+		toggle_raw(TRUE);
 		while (TRUE)
 		{
 			FD_ZERO(&fds);
@@ -64,7 +63,7 @@ void			start_session(t_session *s)
 			}
 		}
 		close(master);
-		toggle_echo(STDIN_FILENO);
+		toggle_raw(FALSE);
 	}
 	else
 		execve(s->shell, av, s->env);

@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/16 16:48:31 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/20 00:34:58 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/20 15:13:58 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,6 @@ void			start_session(t_session *s);
 ** term.c
 */
 
-t_termios		*get_raw_term(void);
 t_winsize		*get_winsize(void);
-void			toggle_echo(int fd);
+int				toggle_raw(t_bool mode);
 #endif
