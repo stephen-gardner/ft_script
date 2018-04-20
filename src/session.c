@@ -1,15 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   record.c                                           :+:      :+:    :+:   */
+/*   session.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/18 00:20:41 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/19 05:16:27 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/20 02:06:39 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
+#include <sys/ioctl.h>
+#include <termios.h>
 #include <sys/select.h>
 #include <unistd.h>
 #include "ft_script.h"
@@ -38,10 +39,11 @@ void			start_session(t_session *s)
 
 	av[0] = s->shell;
 	av[1] = 0;
-	if (ft_forkpty(&master, NULL, NULL))
+	if (ft_forkpty(&master, get_raw_term(), get_winsize()))
 	{
 		fd_set	fds;
 
+		toggle_echo(STDIN_FILENO);
 		while (TRUE)
 		{
 			FD_ZERO(&fds);
@@ -50,15 +52,19 @@ void			start_session(t_session *s)
 			select(master + 1, &fds, NULL, NULL, NULL);
 			if (FD_ISSET(STDIN_FILENO, &fds))
 			{
-				if ((bytes = read(STDIN_FILENO, buf, 4096)))
-					write(master, buf, bytes);
+				if ((bytes = read(STDIN_FILENO, buf, 4096)) <= 0)
+					break ;
+				write(master, buf, bytes);
 			}
 			if (FD_ISSET(master, &fds))
 			{
-				if ((bytes = read(master, buf, 4096)))
-					write(STDOUT_FILENO, buf, bytes);
+				if ((bytes = read(master, buf, 4096)) <= 0)
+					break ;
+				write(STDOUT_FILENO, buf, bytes);
 			}
 		}
+		close(master);
+		toggle_echo(STDIN_FILENO);
 	}
 	else
 		execve(s->shell, av, s->env);

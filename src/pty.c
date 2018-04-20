@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/19 00:46:13 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/19 05:10:22 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/20 02:02:08 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,13 +16,13 @@
 #include <unistd.h>
 #include "ft_script.h"
 
-int	ft_forkpty(int *amaster, t_termios *termp, t_winsize *winp)
+int	ft_forkpty(int *amaster, t_termios *term, t_winsize *ws)
 {
 	int	master;
 	int	slave;
 	int	pid;
 
-	if (ft_openpty(&master, &slave, termp, winp) < 0)
+	if (ft_openpty(&master, &slave, term, ws) < 0)
 		return (-1);
 	pid = fork();
 	if (pid < 0)
@@ -37,7 +37,7 @@ int	ft_forkpty(int *amaster, t_termios *termp, t_winsize *winp)
 	if (ft_login_tty(slave) < 0)
 		script_err("forkpty", "unable to set pty as controlling tty", NULL);
 	return (0);
-}	
+}
 
 int	ft_login_tty(int fd)
 {
@@ -52,7 +52,7 @@ int	ft_login_tty(int fd)
 	return (res);
 }
 
-int	ft_openpty(int *amaster, int *aslave, t_termios *termp, t_winsize *winp)
+int	ft_openpty(int *amaster, int *aslave, t_termios *term, t_winsize *ws)
 {
 	int		master;
 	int		slave;
@@ -70,9 +70,9 @@ int	ft_openpty(int *amaster, int *aslave, t_termios *termp, t_winsize *winp)
 	}
 	*amaster = master;
 	*aslave = slave;
-	if (termp)
-		ioctl(slave, TIOCSETA | TCSAFLUSH, termp);
-	if (winp)
-		ioctl(slave, TIOCSWINSZ, winp);
+	if (term)
+		ioctl(slave, TIOCSETAF, term);
+	if (ws)
+		ioctl(slave, TIOCSWINSZ, ws);
 	return (0);
 }

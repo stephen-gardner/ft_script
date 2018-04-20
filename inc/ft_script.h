@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/16 16:48:31 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/19 05:12:52 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/20 00:34:58 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ typedef struct	s_header
 
 typedef struct	s_session
 {
-	char *const *env;
+	char *const	*env;
 	char *const	*cmd;
 	char		*shell;
 	char		*file;
@@ -81,14 +81,22 @@ int				script_err(const char *pre, const char *err, const char *arg);
 ** pty.c
 */
 
-int				ft_forkpty(int *amaster, t_termios *termp, t_winsize *winp);
+int				ft_forkpty(int *amaster, t_termios *term, t_winsize *ws);
 int				ft_login_tty(int fd);
-int				ft_openpty(int *amster, int *aslave, t_termios *termp,
-					t_winsize *winp);
+int				ft_openpty(int *amster, int *aslave, t_termios *term,
+					t_winsize *ws);
 
 /*
-** record.c
+** session.c
 */
 
 void			start_session(t_session *s);
+
+/*
+** term.c
+*/
+
+t_termios		*get_raw_term(void);
+t_winsize		*get_winsize(void);
+void			toggle_echo(int fd);
 #endif
