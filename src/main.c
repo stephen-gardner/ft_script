@@ -6,12 +6,10 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/16 16:27:57 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/19 00:31:32 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/20 22:48:19 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <sys/uio.h>
-#include <unistd.h>
 #include "ft_getopt.h"
 #include "ft_script.h"
 
@@ -36,28 +34,25 @@ static t_bool	parse_flags(t_session *s, int ac, char *const av[])
 		else
 			return (FALSE);
 	}
-	s->file = (g_optind < ac) ? av[g_optind] : DEFAULT_FILE;
-	if (++g_optind < ac)
-		s->cmd = &av[g_optind];
+	s->file = (g_optind < ac) ? av[g_optind++] : DEFAULT_FILE;
 	return (TRUE);
 }
 
-static void		setup_shell(t_session *s, char *const env[])
+static void		setup_env(t_session *s, int ac, char *av[], char *const env[])
 {
-	int	key_len;
-
-	s->env = env;
-	key_len = LEN(SHELL_KEY);
-	while (*env)
+	if (g_optind < ac)
+		ft_memmove(&av[0], &av[g_optind], sizeof(char *) * (ac - g_optind + 1));
+	else
 	{
-		if (!ft_strncmp(*env, SHELL_KEY, key_len) && *(*env + key_len) == '=')
-			break ;
-		++env;
+		if (!(av[0] = get_env(env, SHELL_KEY)))
+			av[0] = DEFAULT_SHELL;
+		av[1] = NULL;
 	}
-	s->shell = (*env) ? *env + key_len + 1 : DEFAULT_SHELL;
+	s->av = av;
+	s->env = env;
 }
 
-int				main(int ac, char *av[], char **env)
+int				main(int ac, char *av[], char *env[])
 {
 	t_session	s;
 
@@ -68,35 +63,7 @@ int				main(int ac, char *av[], char **env)
 			NULL);
 		return (1);
 	}
-	setup_shell(&s, env);
+	setup_env(&s, ac, av, env);
 	start_session(&s);
 	return (0);
-}
-
-int				script_err(const char *pre, const char *err, const char *arg)
-{
-	struct iovec	out[6];
-	int				i;
-
-	i = 0;
-	if (pre)
-	{
-		out[i].iov_base = (void *)pre;
-		out[i++].iov_len = (pre) ? LEN(pre) : 0;
-		out[i].iov_base = ": ";
-		out[i++].iov_len = 2;
-	}
-	out[i].iov_base = (void *)err;
-	out[i++].iov_len = LEN(err);
-	if (arg)
-	{
-		out[i].iov_base = ": ";
-		out[i++].iov_len = 2;
-		out[i].iov_base = (void *)arg;
-		out[i++].iov_len = LEN(arg);
-	}
-	out[i].iov_base = "\n";
-	out[i++].iov_len = 1;
-	writev(STDERR_FILENO, out, i);
-	return (-1);
 }

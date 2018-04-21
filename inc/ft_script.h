@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/16 16:48:31 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/20 15:13:58 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/21 00:03:45 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,22 +60,16 @@ typedef struct	s_header
 typedef struct	s_session
 {
 	char *const	*env;
-	char *const	*cmd;
+	char 		**av;
 	char		*shell;
 	char		*file;
 	int			fd;
-	int			append: 1;
-	int			flush: 1;
-	int			instant: 1;
-	int			quiet: 1;
-	int			record: 1;
+	t_bool		append: 1;
+	t_bool		flush: 1;
+	t_bool		instant: 1;
+	t_bool		quiet: 1;
+	t_bool		record: 1;
 }				t_session;
-
-/*
-** main.c
-*/
-
-int				script_err(const char *pre, const char *err, const char *arg);
 
 /*
 ** pty.c
@@ -98,4 +92,12 @@ void			start_session(t_session *s);
 
 t_winsize		*get_winsize(void);
 int				toggle_raw(t_bool mode);
+
+/*
+** util.c
+*/
+
+const char		*build_path(const char *path, const char *app);
+char			*get_env(char *const *env, const char *key);
+int				script_err(const char *pre, const char *err, const char *arg);
 #endif
