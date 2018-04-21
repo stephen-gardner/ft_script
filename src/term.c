@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/19 16:55:22 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/20 15:13:43 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/21 00:57:19 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include <unistd.h>
 #include "ft_script.h"
 
-int			toggle_raw(t_bool mode)
+int			term_setraw(t_bool mode)
 {
 	static t_termios	orig;
 	t_termios			raw;

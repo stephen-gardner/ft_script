@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/16 16:48:31 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/21 00:03:45 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/21 07:26:00 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 
 typedef struct termios	t_termios;
 typedef struct winsize	t_winsize;
+typedef struct timeval	t_timeval;
 
 # define PNAME			"ft_script"
 # define OPTIONS		"adFpqr"
@@ -49,7 +50,7 @@ typedef struct	s_header
 {
 	size_t		size;
 	time_t		tv_sec;
-	suseconds_t	tv_usec;
+	int			tv_usec;
 	int			type;
 }				t_header;
 
@@ -60,10 +61,10 @@ typedef struct	s_header
 typedef struct	s_session
 {
 	char *const	*env;
-	char 		**av;
-	char		*shell;
+	char		**av;
 	char		*file;
 	int			fd;
+	int			master;
 	t_bool		append: 1;
 	t_bool		flush: 1;
 	t_bool		instant: 1;
@@ -81,6 +82,12 @@ int				ft_openpty(int *amster, int *aslave, t_termios *term,
 					t_winsize *ws);
 
 /*
+** record.c
+*/
+
+void			record_session(t_session *s);
+
+/*
 ** session.c
 */
 
@@ -91,7 +98,7 @@ void			start_session(t_session *s);
 */
 
 t_winsize		*get_winsize(void);
-int				toggle_raw(t_bool mode);
+int				term_setraw(t_bool mode);
 
 /*
 ** util.c

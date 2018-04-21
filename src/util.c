@@ -6,13 +6,13 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 17:35:12 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/20 23:48:07 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/21 06:36:20 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <limits.h>
-#include <unistd.h>
 #include <sys/uio.h>
+#include <unistd.h>
 #include "ft_script.h"
 
 const char	*build_path(const char *path, const char *app)
@@ -23,7 +23,7 @@ const char	*build_path(const char *path, const char *app)
 
 	path_len = LEN(path);
 	app_len = LEN(app);
-	if (path_len + app_len + 1 > PATH_MAX)
+	if (path_len + app_len + (path[path_len - 1] != '/') > PATH_MAX)
 		return (NULL);
 	ft_memcpy(res, path, path_len);
 	if (res[path_len - 1] != '/')
@@ -33,9 +33,8 @@ const char	*build_path(const char *path, const char *app)
 	return (res);
 }
 
-char	*get_env(char *const *env, const char *key)
+char		*get_env(char *const *env, const char *key)
 {
-
 	int	len;
 
 	len = LEN(key);
@@ -48,7 +47,7 @@ char	*get_env(char *const *env, const char *key)
 	return (NULL);
 }
 
-int		script_err(const char *pre, const char *err, const char *arg)
+int			script_err(const char *pre, const char *err, const char *arg)
 {
 	struct iovec	out[6];
 	int				i;
