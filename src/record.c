@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/21 00:52:39 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/21 08:01:13 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/21 08:12:42 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,22 +65,19 @@ static void			record(t_session *s, char *str, int len, char type)
 
 static void			notice(t_session *s, int status)
 {
-	struct iovec	out[5];
+	struct iovec	out[6];
 	int				i;
 
 	i = 0;
+	if (!status)
+	{
+		out[i].iov_base = "\r\n";
+		out[i++].iov_len = 2;
+	}
 	out[i].iov_base = "Script ";
 	out[i++].iov_len = 7;
-	if (status)
-	{
-		out[i].iov_base = "started";
-		out[i++].iov_len = 7;
-	}
-	else
-	{
-		out[i].iov_base = "done";
-		out[i++].iov_len = 4;
-	}
+	out[i].iov_base = (status) ? "started" : "done";
+	out[i++].iov_len = (status) ? 7 : 4;
 	out[i].iov_base = ", output file is ";
 	out[i++].iov_len = 17;
 	out[i].iov_base = s->file;
