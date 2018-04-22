@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/21 00:52:39 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/21 08:12:42 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/21 20:33:09 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ static void			record(t_session *s, char *str, int len, char type)
 	t_timeval		tstamp;
 	t_header		header;
 	struct iovec	out[2];
+	int				i;
 
 	gettimeofday(&tstamp, NULL);
 	header.size = len;
@@ -56,11 +57,18 @@ static void			record(t_session *s, char *str, int len, char type)
 	header.tv_usec = tstamp.tv_usec;
 	header.type = type;
 	write((type == INPUT) ? s->master : STDOUT_FILENO, str, len);
-	out[0].iov_base = &header;
-	out[0].iov_len = sizeof(t_header);
-	out[1].iov_base = str;
-	out[1].iov_len = len;
-	writev(s->fd, out, 2);
+	i = 0;
+	if (FL(TIMESTAMP))
+	{
+		out[i].iov_base = &header;
+		out[i++].iov_len = sizeof(t_header);
+	}
+	if (type != INPUT || FL(TIMESTAMP | KEYLOG))
+	{
+		out[i].iov_base = str;
+		out[i++].iov_len = len;
+	}
+	writev(s->fd, out, i);
 }
 
 static void			notice(t_session *s, int status)
@@ -71,8 +79,8 @@ static void			notice(t_session *s, int status)
 	i = 0;
 	if (!status)
 	{
-		out[i].iov_base = "\r\n";
-		out[i++].iov_len = 2;
+		out[i].iov_base = "\n";
+		out[i++].iov_len = 1;
 	}
 	out[i].iov_base = "Script ";
 	out[i++].iov_len = 7;
@@ -82,8 +90,8 @@ static void			notice(t_session *s, int status)
 	out[i++].iov_len = 17;
 	out[i].iov_base = s->file;
 	out[i++].iov_len = LEN(s->file);
-	out[i].iov_base = "\r\n";
-	out[i++].iov_len = 2;
+	out[i].iov_base = "\n";
+	out[i++].iov_len = 1;
 	writev(STDOUT_FILENO, out, i);
 }
 
@@ -120,15 +128,12 @@ void				record_session(t_session *s)
 {
 	const char	*path;
 
+	if (!FL(QUIET))
+		notice(s, 1);
 	if (ft_forkpty(&s->master, NULL, get_winsize()))
 	{
 		term_setraw(1);
-		if (!s->quiet)
-			notice(s, 1);
 		record_loop(s);
-		close(s->master);
-		if (!s->quiet)
-			notice(s, 0);
 		term_setraw(0);
 	}
 	else
@@ -139,6 +144,9 @@ void				record_session(t_session *s)
 			path = find_app(s);
 		if (path)
 			execve(path, s->av, s->env);
-		script_err(PNAME, s->av[0], ERRMSG);
+		return ((void)script_err(PNAME, s->av[0], ERRMSG));
 	}
+	close(s->master);
+	if (!FL(QUIET))
+		notice(s, 0);
 }

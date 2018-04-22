@@ -6,32 +6,48 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/16 16:27:57 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/20 22:48:19 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/21 20:24:13 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_getopt.h"
 #include "ft_script.h"
 
+const t_opt	g_opt[] = {
+	{ 'a', APPEND, 0 },
+	{ 'd', INSTANT, 0 },
+	{ 'F', FLUSH, 0 },
+	{ 'k', KEYLOG, 0 },
+	{ 'p', PLAYBACK, TIMESTAMP },
+	{ 'q', QUIET, 0 },
+	{ 'r', TIMESTAMP, PLAYBACK }
+};
+int			g_opt_count = sizeof(g_opt) / sizeof(t_opt);
+
+static t_bool	set_flag(t_session *s, int f)
+{
+	t_opt	opt;
+	int		i;
+
+	i = 0;
+	while (i < g_opt_count)
+	{
+		opt = g_opt[i++];
+		if (f == opt.flag)
+		{
+			s->flags &= ~(opt.conflicts);
+			s->flags |= opt.val;
+			return (TRUE);
+		}
+	}
+	return (FALSE);
+}
+
 static t_bool	parse_flags(t_session *s, int ac, char *const av[])
 {
-	char				f;
-
-	while ((f = ft_getopt(ac, av, OPTIONS)) > -1)
+	while (ft_getopt(ac, av, OPTIONS) > -1)
 	{
-		if (f == 'a')
-			s->append = TRUE;
-		else if (f == 'd')
-			s->instant = TRUE;
-		else if (f == 'F')
-			s->flush = TRUE;
-		else if (f == 'p')
-			s->record = FALSE;
-		else if (f == 'q')
-			s->quiet = TRUE;
-		else if (f == 'r')
-			s->record = TRUE;
-		else
+		if (!set_flag(s, g_optopt))
 			return (FALSE);
 	}
 	s->file = (g_optind < ac) ? av[g_optind++] : DEFAULT_FILE;

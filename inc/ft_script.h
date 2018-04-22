@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/16 16:48:31 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/21 07:26:00 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/21 20:41:06 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,21 +22,34 @@ typedef struct winsize	t_winsize;
 typedef struct timeval	t_timeval;
 
 # define PNAME			"ft_script"
-# define OPTIONS		"adFpqr"
+# define OPTIONS		"adFkpqr"
 # define ERRMSG			sys_errlist[errno]
 
 # define DEFAULT_FILE	"typescript"
 # define DEFAULT_SHELL	"/bin/sh"
 # define SHELL_KEY		"SHELL"
+# define FL(x)			(s->flags & (x))
 
 /*
 ** -a	O_APPEND
 ** -d	Ignore timing information in typescript
 ** -F	Flushes immediately after writing, without timing information
+** -k	Records input during basic recording
 ** -p	Plays back typescript
 ** -q	Quiet mode; no status messages
 ** -r	Record
 */
+
+enum			e_scriptflg
+{
+	APPEND = 1,
+	FLUSH = 1 << 1,
+	INSTANT = 1 << 2,
+	KEYLOG = 1 << 3,
+	PLAYBACK = 1 << 4,
+	QUIET = 1 << 5,
+	TIMESTAMP = 1 << 6
+};
 
 enum			e_htype
 {
@@ -45,6 +58,13 @@ enum			e_htype
 	OUTPUT = 'o',
 	START = 's'
 };
+
+typedef struct	s_opt
+{
+	int		flag;
+	int		val;
+	int		conflicts;
+}				t_opt;
 
 typedef struct	s_header
 {
@@ -65,11 +85,7 @@ typedef struct	s_session
 	char		*file;
 	int			fd;
 	int			master;
-	t_bool		append: 1;
-	t_bool		flush: 1;
-	t_bool		instant: 1;
-	t_bool		quiet: 1;
-	t_bool		record: 1;
+	int			flags;
 }				t_session;
 
 /*
