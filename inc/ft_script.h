@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/16 16:48:31 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/22 00:30:15 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/22 05:39:42 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,12 +45,13 @@ typedef struct winsize	t_winsize;
 enum			e_scriptflg
 {
 	APPEND = 1,
-	FLUSH = 1 << 1,
-	INSTANT = 1 << 2,
-	KEYLOG = 1 << 3,
-	PLAYBACK = 1 << 4,
-	QUIET = 1 << 5,
-	TIMED = 1 << 6
+	COMMAND = 1 << 1,
+	FLUSH = 1 << 2,
+	INSTANT = 1 << 3,
+	KEYLOG = 1 << 4,
+	PLAYBACK = 1 << 5,
+	QUIET = 1 << 6,
+	TIMED = 1 << 7
 };
 
 enum			e_htype
@@ -85,6 +86,12 @@ typedef struct	s_session
 	int			master;
 	int			flags;
 }				t_session;
+
+/*
+** playback.c
+*/
+
+void			playback_session(t_session *s);
 
 /*
 ** pty.c

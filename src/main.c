@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/16 16:27:57 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/22 00:03:16 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/22 05:04:23 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,10 @@ static t_bool	parse_flags(t_session *s, int ac, char *const av[])
 static void		setup_env(t_session *s, int ac, char *av[], char *const env[])
 {
 	if (g_optind < ac)
+	{
 		ft_memmove(&av[0], &av[g_optind], sizeof(char *) * (ac - g_optind + 1));
+		s->flags |= COMMAND;
+	}
 	else
 	{
 		if (!(av[0] = get_env(env, SHELL_KEY)))

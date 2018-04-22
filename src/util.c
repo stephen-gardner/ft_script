@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/20 17:35:12 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/22 00:30:19 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/22 05:44:16 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,9 +80,9 @@ int		script_err(const char *pre, const char *err, const char *arg)
 	return (-1);
 }
 
-void		write_timestamp(t_session *s, time_t uet, int status)
+void	write_timestamp(t_session *s, time_t uet, int status)
 {
-	t_iovec	out[6];
+	t_iovec	out[5];
 	char	*tstamp;
 	int		i;
 
@@ -101,7 +101,5 @@ void		write_timestamp(t_session *s, time_t uet, int status)
 	out[i++].iov_len = 4;
 	out[i].iov_base = tstamp;
 	out[i++].iov_len = LEN(tstamp);
-	out[i].iov_base = "\n";
-	out[i++].iov_len = 1;
 	writev((FL(PLAYBACK)) ? STDOUT_FILENO : s->fd, out, i);
 }

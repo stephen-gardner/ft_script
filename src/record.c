@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/21 00:52:39 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/22 00:30:54 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/22 05:16:45 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ static void			record(t_session *s, char *str, int len, char type)
 		out[i].iov_base = &header;
 		out[i++].iov_len = sizeof(t_header);
 	}
-	if (type != INPUT || FL(TIMED | KEYLOG))
+	if (type != INPUT || FL(KEYLOG | TIMED))
 	{
 		out[i].iov_base = str;
 		out[i++].iov_len = len;
@@ -121,11 +121,8 @@ static void			record_loop(t_session *s)
 
 void				record_session(t_session *s)
 {
-	t_timeval	tstamp;
 	const char	*path;
 
-	if (!FL(QUIET) && !gettimeofday(&tstamp, NULL))
-		write_timestamp(s, tstamp.tv_sec, 1);
 	if (ft_forkpty(&s->master, NULL, get_winsize()))
 	{
 		term_setraw(1);
@@ -143,6 +140,4 @@ void				record_session(t_session *s)
 		return ((void)script_err(PNAME, s->av[0], ERRMSG));
 	}
 	close(s->master);
-	if (!FL(QUIET) && !gettimeofday(&tstamp, NULL))
-		write_timestamp(s, tstamp.tv_sec, 0);
 }
