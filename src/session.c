@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/18 00:20:41 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/21 20:25:58 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/22 00:30:23 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,12 @@ void			start_session(t_session *s)
 	if (FL(PLAYBACK))
 		;
 	else
+	{
+		if (!FL(QUIET))
+			notice(s, 1);
 		record_session(s);
+		if (!FL(QUIET))
+			notice(s, 0);
+	}
 	close(s->fd);
 }

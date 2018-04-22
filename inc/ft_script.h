@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/16 16:48:31 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/21 20:41:06 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/22 00:30:15 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,18 +17,20 @@
 # include <sys/time.h>
 # include "libft.h"
 
+typedef struct iovec	t_iovec;
 typedef struct termios	t_termios;
-typedef struct winsize	t_winsize;
 typedef struct timeval	t_timeval;
+typedef struct winsize	t_winsize;
 
 # define PNAME			"ft_script"
 # define OPTIONS		"adFkpqr"
+# define BUFF_SIZE		4096
 # define ERRMSG			sys_errlist[errno]
+# define FL(x)			(s->flags & (x))
 
 # define DEFAULT_FILE	"typescript"
 # define DEFAULT_SHELL	"/bin/sh"
 # define SHELL_KEY		"SHELL"
-# define FL(x)			(s->flags & (x))
 
 /*
 ** -a	O_APPEND
@@ -48,7 +50,7 @@ enum			e_scriptflg
 	KEYLOG = 1 << 3,
 	PLAYBACK = 1 << 4,
 	QUIET = 1 << 5,
-	TIMESTAMP = 1 << 6
+	TIMED = 1 << 6
 };
 
 enum			e_htype
@@ -70,13 +72,9 @@ typedef struct	s_header
 {
 	size_t		size;
 	time_t		tv_sec;
-	int			tv_usec;
+	suseconds_t	tv_usec;
 	int			type;
 }				t_header;
-
-/*
-** script [-adpqr] [-F pipe] [file [command ...]]
-*/
 
 typedef struct	s_session
 {
@@ -120,7 +118,8 @@ int				term_setraw(t_bool mode);
 ** util.c
 */
 
-const char		*build_path(const char *path, const char *app);
 char			*get_env(char *const *env, const char *key);
+void			notice(t_session *s, int status);
 int				script_err(const char *pre, const char *err, const char *arg);
+void			write_timestamp(t_session *s, time_t uet, int status);
 #endif

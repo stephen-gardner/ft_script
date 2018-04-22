@@ -6,14 +6,33 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/21 00:52:39 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/21 20:33:09 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/22 00:30:54 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <limits.h>
 #include <sys/stat.h>
 #include <sys/uio.h>
 #include <unistd.h>
 #include "ft_script.h"
+
+static const char	*build_path(const char *path, const char *app)
+{
+	static char	res[PATH_MAX + 1];
+	int			path_len;
+	int			app_len;
+
+	path_len = LEN(path);
+	app_len = LEN(app);
+	if (path_len + app_len + (path[path_len - 1] != '/') > PATH_MAX)
+		return (NULL);
+	ft_memcpy(res, path, path_len);
+	if (res[path_len - 1] != '/')
+		res[path_len++] = '/';
+	ft_memcpy(res + path_len, app, app_len);
+	res[path_len + app_len] = '\0';
+	return (res);
+}
 
 static const char	*find_app(t_session *s)
 {
@@ -46,10 +65,10 @@ static const char	*find_app(t_session *s)
 
 static void			record(t_session *s, char *str, int len, char type)
 {
-	t_timeval		tstamp;
-	t_header		header;
-	struct iovec	out[2];
-	int				i;
+	t_timeval	tstamp;
+	t_header	header;
+	t_iovec		out[2];
+	int			i;
 
 	gettimeofday(&tstamp, NULL);
 	header.size = len;
@@ -58,12 +77,12 @@ static void			record(t_session *s, char *str, int len, char type)
 	header.type = type;
 	write((type == INPUT) ? s->master : STDOUT_FILENO, str, len);
 	i = 0;
-	if (FL(TIMESTAMP))
+	if (FL(TIMED))
 	{
 		out[i].iov_base = &header;
 		out[i++].iov_len = sizeof(t_header);
 	}
-	if (type != INPUT || FL(TIMESTAMP | KEYLOG))
+	if (type != INPUT || FL(TIMED | KEYLOG))
 	{
 		out[i].iov_base = str;
 		out[i++].iov_len = len;
@@ -71,33 +90,9 @@ static void			record(t_session *s, char *str, int len, char type)
 	writev(s->fd, out, i);
 }
 
-static void			notice(t_session *s, int status)
-{
-	struct iovec	out[6];
-	int				i;
-
-	i = 0;
-	if (!status)
-	{
-		out[i].iov_base = "\n";
-		out[i++].iov_len = 1;
-	}
-	out[i].iov_base = "Script ";
-	out[i++].iov_len = 7;
-	out[i].iov_base = (status) ? "started" : "done";
-	out[i++].iov_len = (status) ? 7 : 4;
-	out[i].iov_base = ", output file is ";
-	out[i++].iov_len = 17;
-	out[i].iov_base = s->file;
-	out[i++].iov_len = LEN(s->file);
-	out[i].iov_base = "\n";
-	out[i++].iov_len = 1;
-	writev(STDOUT_FILENO, out, i);
-}
-
 static void			record_loop(t_session *s)
 {
-	char	buf[4096];
+	char	buf[BUFF_SIZE];
 	fd_set	fds;
 	int		bytes;
 
@@ -110,13 +105,13 @@ static void			record_loop(t_session *s)
 		select(s->master + 1, &fds, NULL, NULL, NULL);
 		if (FD_ISSET(STDIN_FILENO, &fds))
 		{
-			if ((bytes = read(STDIN_FILENO, buf, 4096)) <= 0)
+			if ((bytes = read(STDIN_FILENO, buf, BUFF_SIZE)) <= 0)
 				break ;
 			record(s, buf, bytes, INPUT);
 		}
 		if (FD_ISSET(s->master, &fds))
 		{
-			if ((bytes = read(s->master, buf, 4096)) <= 0)
+			if ((bytes = read(s->master, buf, BUFF_SIZE)) <= 0)
 				break ;
 			record(s, buf, bytes, OUTPUT);
 		}
@@ -126,10 +121,11 @@ static void			record_loop(t_session *s)
 
 void				record_session(t_session *s)
 {
+	t_timeval	tstamp;
 	const char	*path;
 
-	if (!FL(QUIET))
-		notice(s, 1);
+	if (!FL(QUIET) && !gettimeofday(&tstamp, NULL))
+		write_timestamp(s, tstamp.tv_sec, 1);
 	if (ft_forkpty(&s->master, NULL, get_winsize()))
 	{
 		term_setraw(1);
@@ -147,6 +143,6 @@ void				record_session(t_session *s)
 		return ((void)script_err(PNAME, s->av[0], ERRMSG));
 	}
 	close(s->master);
-	if (!FL(QUIET))
-		notice(s, 0);
+	if (!FL(QUIET) && !gettimeofday(&tstamp, NULL))
+		write_timestamp(s, tstamp.tv_sec, 0);
 }

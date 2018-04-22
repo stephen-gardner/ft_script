@@ -6,23 +6,23 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/16 16:27:57 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/21 20:24:13 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/22 00:03:16 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_getopt.h"
 #include "ft_script.h"
 
-const t_opt	g_opt[] = {
+const t_opt		g_opt[] = {
 	{ 'a', APPEND, 0 },
 	{ 'd', INSTANT, 0 },
 	{ 'F', FLUSH, 0 },
 	{ 'k', KEYLOG, 0 },
-	{ 'p', PLAYBACK, TIMESTAMP },
+	{ 'p', PLAYBACK, TIMED },
 	{ 'q', QUIET, 0 },
-	{ 'r', TIMESTAMP, PLAYBACK }
+	{ 'r', TIMED, PLAYBACK }
 };
-int			g_opt_count = sizeof(g_opt) / sizeof(t_opt);
+const int		g_opt_count = sizeof(g_opt) / sizeof(t_opt);
 
 static t_bool	set_flag(t_session *s, int f)
 {
@@ -75,7 +75,7 @@ int				main(int ac, char *av[], char *env[])
 	ft_memset(&s, 0, sizeof(t_session));
 	if (!parse_flags(&s, ac, av))
 	{
-		script_err("usage", PNAME " [-adpqr] [-F pipe] [file [command ...]]",
+		script_err("usage", PNAME " [-adFkpqr] [-F pipe] [file [command ...]]",
 			NULL);
 		return (1);
 	}
