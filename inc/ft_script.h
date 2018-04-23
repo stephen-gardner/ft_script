@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/16 16:48:31 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/23 03:23:17 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/23 04:49:20 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,7 @@ int				ft_openpty(int *amster, int *aslave, t_termios *term,
 ** record.c
 */
 
-void			record_session(t_session *s);
+int				record_session(t_session *s);
 
 /*
 ** session.c

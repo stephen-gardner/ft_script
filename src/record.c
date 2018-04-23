@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/21 00:52:39 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/22 05:16:45 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/23 04:49:36 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,7 +119,7 @@ static void			record_loop(t_session *s)
 	record(s, NULL, 0, END);
 }
 
-void				record_session(t_session *s)
+int					record_session(t_session *s)
 {
 	const char	*path;
 
@@ -137,7 +137,8 @@ void				record_session(t_session *s)
 			path = find_app(s);
 		if (path)
 			execve(path, s->av, s->env);
-		return ((void)script_err(PNAME, s->av[0], ERRMSG));
+		return (script_err(PNAME, s->av[0], ERRMSG));
 	}
 	close(s->master);
+	return (0);
 }

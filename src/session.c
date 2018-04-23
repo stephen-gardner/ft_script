@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/18 00:20:41 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/22 18:55:53 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/23 04:48:59 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,8 @@ void		start_session(t_session *s)
 			report_status(s, 1);
 		if (FL(COMMAND) && !FL(TIMED))
 			log_command(s);
-		record_session(s);
+		if (record_session(s) < 0)
+			return ;
 		if (!FL(QUIET))
 			report_status(s, 0);
 	}
