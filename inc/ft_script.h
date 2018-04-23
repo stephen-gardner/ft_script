@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/16 16:48:31 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/22 05:39:42 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/22 20:12:03 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 typedef struct iovec	t_iovec;
 typedef struct termios	t_termios;
 typedef struct timeval	t_timeval;
+typedef struct timespec	t_timespec;
 typedef struct winsize	t_winsize;
 
 # define PNAME			"ft_script"
