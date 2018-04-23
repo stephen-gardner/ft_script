@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/21 00:53:07 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/23 03:44:37 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/23 04:32:20 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ static void		sleep_diff(t_timespec *prev_time, t_timespec *curr_time)
 		if (prev_time->tv_sec)
 		{
 			--prev_time->tv_sec;
-			prev_time->tv_nsec += 100000000;
+			prev_time->tv_nsec += 1000000000;
 		}
 		else
 			prev_time->tv_nsec = 0;
