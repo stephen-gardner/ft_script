@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/21 00:53:07 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/23 03:13:29 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/23 03:44:37 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,24 +15,22 @@
 
 static void		sleep_diff(t_timespec *prev_time, t_timespec *curr_time)
 {
-	t_timespec	diff_time;
-
-	if ((diff_time.tv_sec = curr_time->tv_sec - prev_time->tv_sec) < 0)
+	if ((prev_time->tv_sec = curr_time->tv_sec - prev_time->tv_sec) < 0)
 	{
-		diff_time.tv_sec = 0;
-		diff_time.tv_nsec = 0;
+		prev_time->tv_sec = 0;
+		prev_time->tv_nsec = 0;
 	}
-	else if ((diff_time.tv_nsec = curr_time->tv_nsec - prev_time->tv_nsec) < 0)
+	else if ((prev_time->tv_nsec = curr_time->tv_nsec - prev_time->tv_nsec) < 0)
 	{
-		if (diff_time.tv_sec)
+		if (prev_time->tv_sec)
 		{
-			--diff_time.tv_sec;
-			diff_time.tv_nsec += 100000000;
+			--prev_time->tv_sec;
+			prev_time->tv_nsec += 100000000;
 		}
 		else
-			diff_time.tv_nsec = 0;
+			prev_time->tv_nsec = 0;
 	}
-	nanosleep(&diff_time, NULL);
+	nanosleep(prev_time, NULL);
 }
 
 static t_bool	process_log(t_session *s, t_header *header, char *data)
