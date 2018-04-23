@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/16 16:48:31 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/22 20:12:03 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/23 03:23:17 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,23 +25,13 @@ typedef struct winsize	t_winsize;
 
 # define PNAME			"ft_script"
 # define OPTIONS		"adFkpqr"
-# define BUFF_SIZE		4096
+# define BUFF_SIZE		65536
 # define ERRMSG			sys_errlist[errno]
 # define FL(x)			(s->flags & (x))
 
 # define DEFAULT_FILE	"typescript"
 # define DEFAULT_SHELL	"/bin/sh"
 # define SHELL_KEY		"SHELL"
-
-/*
-** -a	O_APPEND
-** -d	Ignore timing information in typescript
-** -F	Flushes immediately after writing, without timing information
-** -k	Records input during basic recording
-** -p	Plays back typescript
-** -q	Quiet mode; no status messages
-** -r	Record
-*/
 
 enum			e_scriptflg
 {

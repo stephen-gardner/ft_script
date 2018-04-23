@@ -6,55 +6,57 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/21 00:53:07 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/22 22:15:02 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/23 03:13:29 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <unistd.h>
 #include "ft_script.h"
 
-static void		sleep_diff(t_timespec *prev, t_timespec *curr)
+static void		sleep_diff(t_timespec *prev_time, t_timespec *curr_time)
 {
-	t_timespec	diff;
+	t_timespec	diff_time;
 
-	if ((diff.tv_sec = curr->tv_sec - prev->tv_sec) < 0)
-		diff.tv_sec = 0;
-	if ((diff.tv_nsec = curr->tv_nsec - prev->tv_nsec) < 0)
+	if ((diff_time.tv_sec = curr_time->tv_sec - prev_time->tv_sec) < 0)
 	{
-		if (diff.tv_sec)
+		diff_time.tv_sec = 0;
+		diff_time.tv_nsec = 0;
+	}
+	else if ((diff_time.tv_nsec = curr_time->tv_nsec - prev_time->tv_nsec) < 0)
+	{
+		if (diff_time.tv_sec)
 		{
-			--diff.tv_sec;
-			diff.tv_nsec += 100000000;
+			--diff_time.tv_sec;
+			diff_time.tv_nsec += 100000000;
 		}
 		else
-			diff.tv_nsec = 0;
+			diff_time.tv_nsec = 0;
 	}
-	nanosleep(&diff, NULL);
+	nanosleep(&diff_time, NULL);
 }
 
-static t_bool	process_log(t_session *s, t_header *h, char *data)
+static t_bool	process_log(t_session *s, t_header *header, char *data)
 {
-	static t_timespec	prev;
-	static t_timespec	curr;
+	static t_timespec	prev_time;
+	t_timespec			curr_time;
 
-	curr.tv_sec = h->tv_sec;
-	curr.tv_nsec = h->tv_usec * 1000;
-	if (h->type == OUTPUT)
+	curr_time.tv_sec = header->tv_sec;
+	curr_time.tv_nsec = header->tv_usec * 1000;
+	if (header->type == OUTPUT)
 	{
 		if (!FL(INSTANT))
-			sleep_diff(&prev, &curr);
-		write(STDOUT_FILENO, data, h->size);
-		prev = curr;
+			sleep_diff(&prev_time, &curr_time);
+		write(STDOUT_FILENO, data, header->size);
+		prev_time = curr_time;
 	}
-	else if (h->type == INPUT)
+	else if (header->type == INPUT)
 		;
-	else if (h->type == START)
+	else if (header->type == START || header->type == END)
 	{
-		write_timestamp(s, h->tv_sec, 1);
-		prev = curr;
+		if (!FL(QUIET))
+			write_timestamp(s, header->tv_sec, (header->type == START));
+		prev_time = curr_time;
 	}
-	else if (h->type == END)
-		write_timestamp(s, h->tv_sec, 0);
 	else
 		return (FALSE);
 	return (TRUE);
@@ -62,19 +64,19 @@ static t_bool	process_log(t_session *s, t_header *h, char *data)
 
 void			playback_session(t_session *s)
 {
+	t_header	header;
 	char		buf[BUFF_SIZE];
-	t_header	curr;
 	int			bytes;
 
 	while (TRUE)
 	{
-		if ((bytes = read(s->fd, &curr, sizeof(t_header))) < 0)
+		if ((bytes = read(s->fd, &header, sizeof(t_header))) < 0)
 			return ((void)script_err(PNAME, ERRMSG, NULL));
 		if (!bytes)
 			break ;
 		if (bytes < (int)sizeof(t_header)
-			|| (size_t)read(s->fd, buf, curr.size) < curr.size
-			|| !process_log(s, &curr, buf))
+			|| (size_t)read(s->fd, buf, header.size) < header.size
+			|| !process_log(s, &header, buf))
 			return ((void)script_err(PNAME, "invalid header", NULL));
 	}
 }
