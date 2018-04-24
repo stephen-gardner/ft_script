@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/21 00:53:07 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/23 04:32:20 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/23 18:42:56 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,20 +15,11 @@
 
 static void		sleep_diff(t_timespec *prev_time, t_timespec *curr_time)
 {
-	if ((prev_time->tv_sec = curr_time->tv_sec - prev_time->tv_sec) < 0)
+	prev_time->tv_sec = curr_time->tv_sec - prev_time->tv_sec;
+	if ((prev_time->tv_nsec = curr_time->tv_nsec - prev_time->tv_nsec) < 0)
 	{
-		prev_time->tv_sec = 0;
-		prev_time->tv_nsec = 0;
-	}
-	else if ((prev_time->tv_nsec = curr_time->tv_nsec - prev_time->tv_nsec) < 0)
-	{
-		if (prev_time->tv_sec)
-		{
-			--prev_time->tv_sec;
-			prev_time->tv_nsec += 1000000000;
-		}
-		else
-			prev_time->tv_nsec = 0;
+		--prev_time->tv_sec;
+		prev_time->tv_nsec += 1000000000;
 	}
 	nanosleep(prev_time, NULL);
 }
