@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/16 16:48:31 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/23 04:49:20 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/24 20:25:06 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,8 @@ void			playback_session(t_session *s);
 ** pty.c
 */
 
-int				ft_forkpty(int *amaster, t_termios *term, t_winsize *ws);
+int				ft_forkpty(int *amaster, int *aslave, t_termios *term,
+					t_winsize *ws);
 int				ft_login_tty(int fd);
 int				ft_openpty(int *amster, int *aslave, t_termios *term,
 					t_winsize *ws);

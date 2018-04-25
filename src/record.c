@@ -6,13 +6,15 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/21 00:52:39 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/23 04:49:36 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/24 21:50:53 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <limits.h>
+#include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/uio.h>
+#include <termios.h>
 #include <unistd.h>
 #include "ft_script.h"
 
@@ -90,44 +92,48 @@ static void			record(t_session *s, char *str, int len, char type)
 	writev(s->fd, out, i);
 }
 
-static void			record_loop(t_session *s)
+static void			record_loop(t_session *s, t_winsize *ws, int slave)
 {
-	char	buf[BUFF_SIZE];
-	fd_set	fds;
-	int		bytes;
+	char		buf[BUFF_SIZE];
+	fd_set		fds;
+	int			bytes;
+	int			fd;
+	t_timeval	delay;
 
+	delay.tv_sec = 0;
+	delay.tv_usec = 200000;
 	record(s, NULL, 0, START);
 	while (TRUE)
 	{
+		if ((ws = get_winsize()))
+			ioctl(slave, TIOCSWINSZ, ws);
 		FD_ZERO(&fds);
 		FD_SET(STDIN_FILENO, &fds);
 		FD_SET(s->master, &fds);
-		select(s->master + 1, &fds, NULL, NULL, NULL);
-		if (FD_ISSET(STDIN_FILENO, &fds))
-		{
-			if ((bytes = read(STDIN_FILENO, buf, BUFF_SIZE)) <= 0)
-				break ;
-			record(s, buf, bytes, INPUT);
-		}
-		if (FD_ISSET(s->master, &fds))
-		{
-			if ((bytes = read(s->master, buf, BUFF_SIZE)) <= 0)
-				break ;
-			record(s, buf, bytes, OUTPUT);
-		}
+		if (!select(s->master + 1, &fds, NULL, NULL, &delay))
+			continue ;
+		fd = (FD_ISSET(STDIN_FILENO, &fds)) ? STDIN_FILENO : s->master;
+		if ((bytes = read(fd, buf, BUFF_SIZE)) <= 0)
+			break ;
+		record(s, buf, bytes, (fd == STDIN_FILENO) ? INPUT : OUTPUT);
 	}
 	record(s, NULL, 0, END);
 }
 
 int					record_session(t_session *s)
 {
+	t_winsize	*ws;
 	const char	*path;
+	int			slave;
 
-	if (ft_forkpty(&s->master, NULL, get_winsize()))
+	ws = get_winsize();
+	if (ft_forkpty(&s->master, &slave, NULL, ws))
 	{
 		term_setraw(1);
-		record_loop(s);
+		record_loop(s, ws, slave);
 		term_setraw(0);
+		close(slave);
+		close(s->master);
 	}
 	else
 	{
@@ -139,6 +145,5 @@ int					record_session(t_session *s)
 			execve(path, s->av, s->env);
 		return (script_err(PNAME, s->av[0], ERRMSG));
 	}
-	close(s->master);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: sgardner <stephenbgardner@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/19 00:46:13 by sgardner          #+#    #+#             */
-/*   Updated: 2018/04/20 02:02:08 by sgardner         ###   ########.fr       */
+/*   Updated: 2018/04/24 21:36:30 by sgardner         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,12 @@
 #include <unistd.h>
 #include "ft_script.h"
 
-int	ft_forkpty(int *amaster, t_termios *term, t_winsize *ws)
+/*
+** Parent process would normally close slave fd here, but we need it for
+** window resizing...
+*/
+
+int	ft_forkpty(int *amaster, int *aslave, t_termios *term, t_winsize *ws)
 {
 	int	master;
 	int	slave;
@@ -29,7 +34,7 @@ int	ft_forkpty(int *amaster, t_termios *term, t_winsize *ws)
 		return (-1);
 	if (pid)
 	{
-		close(slave);
+		*aslave = slave;
 		*amaster = master;
 		return (pid);
 	}
