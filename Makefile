@@ -39,7 +39,7 @@ all: $(NAME)
 
 $(NAME): $(LIBFT) $(OBJ)
 	@printf "$(YELLOW)%-$(COLSIZE)s$(NC)" "Building $@... "
-	@$(CC) $(CFLAGS) $(LIBFT) $(MLX) $(OBJ) -o $@
+	@$(CC) $(CFLAGS) $(LIBFT) $(OBJ) -o $@
 	@echo "$(GREEN)DONE$(NC)"
 
 $(LIBFT):
@@ -59,6 +59,6 @@ clean:
 fclean: clean
 	@make -C libft fclean
 	@rm -f $(NAME)
-	@echo "$(RED)$(NAME) removed"
+	@echo "$(RED)$(NAME) removed$(NC)"
 
 re: fclean all
